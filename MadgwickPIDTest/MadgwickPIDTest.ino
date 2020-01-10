@@ -12,6 +12,8 @@ int16_t gx, gy, gz;
 int offax, offay, offaz, offgx, offgy, offgz;
 float roll, pitch, yaw;
 
+int testDelta;
+
 long lastTime, currTime;
 
 void setup() {
@@ -22,7 +24,7 @@ void setup() {
   #endif
   Serial.begin(19200);
   lastTime = micros();
-  filter.begin(200);
+  filter.begin(125);
   accGyro.initialize();
   accGyro.setFullScaleGyroRange(MPU6050_GYRO_FS_500);
   accGyro.setFullScaleAccelRange(MPU6050_ACCEL_FS_2);
@@ -55,16 +57,24 @@ void loop() {
     float gz_f = convertRawGyro(gz);
     
     filter.updateIMU(gx_f, gy_f, gz_f, ax_f, ay_f, az_f);
+
+    //testDelta = micros()-lastTime;
+    //Serial.println(testDelta);
     
     pitch = filter.getPitch();
     roll = filter.getRoll();
    
     Serial.println(roll);
-    /*Serial.print(gx_f);
+
+    /*Serial.print(500);
+    Serial.print("\t");
+    Serial.print(gx_f);
     Serial.print("\t");
     Serial.print(gy_f);
     Serial.print("\t");
-    Serial.println(gz_f);*/
+    Serial.print(gz_f);
+    Serial.print("\t");
+    Serial.println(-500);*/
     
     lastTime = currTime;
   }  
@@ -76,7 +86,7 @@ float convertRawGyro(int gRaw) {
   // -250 maps to a raw value of -32768
   // +250 maps to a raw value of 32767
   
-  float g = ((float)gRaw * 500.0) / 32768.0;
+  float g = ((float)gRaw * 250.0) / 32768.0;
   return g;
 }
 
@@ -88,3 +98,16 @@ float convertRawAcceleration(int aRaw) {
   float a = ((float)aRaw * 2.0) / 32768.0;
   return a;
 }
+
+/*
+ * Zkontrolovat rozsahy Gyro
+ * Poslat:
+ * sekundu: naklopit o 90/180 a zpátky
+ * 3 sekundy/2 sekundy/1 sekunda
+ * Akcelerace: 9,81 (1)
+ * podle toho kde leží: 1, -1
+ * O jednu matku na patro navíc
+ * Výpis Serial + plotter
+ * oddělené TAB (gx gy gz)
+ * 
+ */
